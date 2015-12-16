@@ -31,12 +31,12 @@ app.roomSelector = $('#roomSelector');
 //query function
 app.queryMessages = function(queryData) {
   if(queryData === undefined){
-    queryData = 'order=-createdAt&where={"roomname":"'+ this.currentRoom +'"}';
+    queryData = this.currentRoom;
   }
   $.ajax({
-    url: 'http://127.0.0.1:3000/classes/chatterbox',
+    url: 'http://127.0.0.1:3000/classes/' + queryData,
     type: 'GET',
-    data: queryData,
+    // data: queryData,
     contentType: 'application/json',
     success: function(data) {
       //create a tempResults array with a length set to our maxMessagesDisplay
@@ -66,7 +66,7 @@ app.createMessage = function(text) {
   };
   //submit a new message
   $.ajax({
-    url: 'http://127.0.0.1:3000/classes/chatterbox',
+    url: 'http://127.0.0.1:3000/classes/messages',
     type: 'POST',
     data: JSON.stringify(message),
     contentType: 'application/json',
@@ -279,8 +279,9 @@ app.init = function(){
     //run interval to update everything
     app.interval();
   });
+
   //run our query update to gather chat rooms
-  app.queryMessages('order=-createdAt');
+  app.queryMessages('messages');
   //run our first interval to bind click events
   app.interval();
   //run our interval based functions
