@@ -33,8 +33,10 @@ var requestHandler = function(request, response) {
       response.end(responseData);
   };
 
+  ////////////////////////////////////////////
+  //  HANDLE DIFFERENT REQUEST TYPES BELOW  //
+  ////////////////////////////////////////////
 
-  //HANDLE DIFFERENT REQUEST TYPES
   //if method is OPTIONS
   if (request.method === 'OPTIONS') {
     sendResponse(200, defaultCorsHeaders, '{}');
