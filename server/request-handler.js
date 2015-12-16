@@ -25,7 +25,6 @@ var requestHandler = function(request, response) {
   var testJSONContent = '{"results":[{"createdAt":"2015-12-15T02:20:38.302Z","objectId":"6erk30W6Zo","roomname":"lobby","text":"xcg","updatedAt":"2015-12-15T02:20:38.302Z","username":"Gabe 2"},{"createdAt":"2015-12-15T01:27:45.224Z","objectId":"W64Ne6vENn","roomname":"lobby","text":"hi!","updatedAt":"2015-12-15T01:27:45.224Z","username":"Gabe 2"},{"createdAt":"2015-12-15T01:27:03.908Z","objectId":"a1lm0oQPM9","roomname":"lobby","text":"again, a new post!","updatedAt":"2015-12-15T01:27:03.908Z","username":"Gabe 2"},{"createdAt":"2015-12-15T01:27:00.764Z","objectId":"KQL4CyfWr3","roomname":"lobby","text":"again, a new post!","updatedAt":"2015-12-15T01:27:00.764Z","username":"Gabe 2"},{"createdAt":"2015-12-15T01:23:16.273Z","objectId":"wCgPixcC4X","roomname":"lobby","text":"hello, new server!","updatedAt":"2015-12-15T01:23:16.273Z","username":"Gabe 2"},{"createdAt":"2015-12-15T00:01:53.382Z","objectId":"xP7P2eW6WD","roomname":"lobby","text":"HRRRRRRRRRR11","updatedAt":"2015-12-15T00:01:53.382Z","username":"Test"},{"createdAt":"2015-12-09T05:25:20.748Z","objectId":"R5Md4hi4Ke","roomname":"lobby","text":"hgfjf","updatedAt":"2015-12-09T05:25:20.748Z","username":"anonymous"}]}';
 
 
-
   // generic response function
   var sendResponse = function(statusCode, headers, responseData){
       //write headers with our status code
@@ -33,6 +32,7 @@ var requestHandler = function(request, response) {
       //send back our response
       response.end(responseData);
   };
+
 
   //HANDLE DIFFERENT REQUEST TYPES
   //if method is OPTIONS
@@ -43,6 +43,8 @@ var requestHandler = function(request, response) {
 
   //if method is a get send 200 status
   if (request.method === 'GET') {
+    var responseCode = 200;
+
     //default response
     var responseData = '{"results":[]}';
     //room name
@@ -54,10 +56,16 @@ var requestHandler = function(request, response) {
     //set our content type to json
     headers['Content-Type'] = "application/json";
 
+
+    console.log('sliced url result:',request.url.slice(0,9));
+
+    //if our url is requesting all messages send them back
     if(request.url === '/classes/messages'){
       //set our response data
       responseData = JSON.stringify({results:messageArray});
-    } else {
+
+      //if our request url has a valid path of classes check for rooms messages
+    } else if (request.url.slice(0,9) === '/classes/'){
       //create our roomName from our url
       roomName = request.url.slice(9);
       //go through messageArray and create response to match room
@@ -68,15 +76,20 @@ var requestHandler = function(request, response) {
           roomMessageArray.push(messageArray[i]);
         }
       }
-      //create responseData by stri ngifying roomMessageArrayMessageArray
+      //if we have room messages after our loop update our response data
       if(roomMessageArray.length > 0){
+        //create responseData by stringifying roomMessageArrayMessageArray
         responseData =  JSON.stringify({results:roomMessageArray});
       }
+      //for all other requests send a 404 error
+    } else {
+      //set response code to 404
+      responseCode = 404;
+      //send back an empty json object
+      responseData = '{}';
     }
-    //log response data
-    console.log('\n\nlogging responseData after stringify:\n',responseData);
     //send our response
-    sendResponse(200,headers,responseData);
+    sendResponse(responseCode,headers,responseData);
   }
 
 
